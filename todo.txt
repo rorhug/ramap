@@ -1,7 +1,7 @@
 - [x] get mapbox to load
 - [x] get ra data to load for london
 - [x] get dots on the map for the events
-- tapping dot goes to event
+- [x] tapping dot goes to event
 - collect emails - coming soon: more cities, mobile app
 
 - publish
