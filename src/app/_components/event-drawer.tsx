@@ -36,7 +36,14 @@ export function VenueDrawer({
   }, [venue?.id])
 
   return (
-    <Drawer open={open} onClose={() => setOpen(false)} dismissible={true}>
+    <Drawer
+      open={open}
+      onClose={() => {
+        setOpen(false)
+        setSelectedVenueId(null)
+      }}
+      dismissible={true}
+    >
       <DrawerContent>
         {/* <DrawerTrigger>Open</DrawerTrigger> */}
         {venue && (
@@ -44,7 +51,6 @@ export function VenueDrawer({
             venue={venue}
             close={() => {
               setOpen(false)
-              setSelectedVenueId(null)
             }}
           />
         )}
