@@ -35,7 +35,7 @@ export type RaVenue = {
 }
 export type GeocodedVenue = RaVenue & {
   coordinates?: [number, number]
-  inLondon?: boolean
+  mapboxContext?: MapboxContext
 }
 export type GeocodeResponse = {
   batch: {
@@ -67,50 +67,52 @@ export type GeocodeResponse = {
           country: string
           confidence: string
         }
-        context: {
-          address: {
-            mapbox_id: string
-            address_number: string
-            street_name: string
-            name: string
-          }
-          street: {
-            mapbox_id: string
-            name: string
-          }
-          neighborhood: {
-            mapbox_id: string
-            name: string
-            alternate: {
-              mapbox_id: string
-              name: string
-            }
-          }
-          postcode: {
-            mapbox_id: string
-            name: string
-          }
-          place: {
-            mapbox_id: string
-            name: string
-            wikidata_id: string
-          }
-          region: {
-            mapbox_id: string
-            name: string
-            wikidata_id: string
-            region_code: string
-            region_code_full: string
-          }
-          country: {
-            mapbox_id: string
-            name: string
-            wikidata_id: string
-            country_code: string
-            country_code_alpha_3: string
-          }
-        }
+        context: MapboxContext
       }
     }[]
   }[]
+}
+
+type MapboxContext = {
+  address: {
+    mapbox_id: string
+    address_number: string
+    street_name: string
+    name: string
+  }
+  street: {
+    mapbox_id: string
+    name: string
+  }
+  neighborhood: {
+    mapbox_id: string
+    name: string
+    alternate: {
+      mapbox_id: string
+      name: string
+    }
+  }
+  postcode: {
+    mapbox_id: string
+    name: string
+  }
+  place: {
+    mapbox_id: string
+    name: string
+    wikidata_id: string
+  }
+  region: {
+    mapbox_id: string
+    name: string
+    wikidata_id: string
+    region_code: string
+    region_code_full: string
+  }
+  country: {
+    mapbox_id: string
+    name: string
+    wikidata_id: string
+    country_code: string
+    country_code_alpha_3: string
+  }
 }

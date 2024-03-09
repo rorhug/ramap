@@ -2,6 +2,19 @@
 - [x] get ra data to load for london
 - [x] get dots on the map for the events
 - [x] tapping dot goes to event
+- [x] cache geocodes
+
+
+- [x] bug: why wasn't marlon on the map https://ra.co/events/1800829
+- [] filter by time
+- [] at a certain zoom, show names and start time on each club (i.e. 7pm)
+- [] dark mode
+- [] join whatsapp channel
+
+- [] make sold out gigs red
+
+- [] store clubs geocodes in db
+
 - collect emails - coming soon: more cities, mobile app
 
 - publish

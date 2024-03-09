@@ -4,25 +4,29 @@
 
 // import { getServerAuthSession } from "~/server/auth"
 // import { api } from "~/trpc/server"
+import { useSearchParams } from "next/navigation"
 import VenueMap from "./_components/event-map"
 import { fetchVenues } from "./mapbox"
 
 export const revalidate = 3600
 
-export default async function Home() {
-  // noStore();
-  // const hello = await api.post.hello.query({ text: "from tRPC" });
-  // const session = await getServerAuthSession();
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: { startDate?: string; city?: string }
+}) {
+  // const params = useSearchParams()
 
-  const venues = await fetchVenues()
+  const { startDate } = searchParams
 
-  console.log("yo frontend", venues.length)
+  console.log("startDate", startDate)
 
-  return (
-    <VenueMap
-      venues={venues}
-      // selectedVenueId={selectedVenueId}
-      // setSelectedVenueId={setSelectedVenueId}
-    />
-  )
+  // const startDateQuery = params.get("startDate")
+  const date = startDate ? new Date(startDate) : new Date()
+
+  const city = searchParams.city ?? "london"
+
+  const venues = await fetchVenues(date, city)
+
+  return <VenueMap venues={venues} startDate={date} city={city} />
 }

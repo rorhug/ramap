@@ -7,8 +7,8 @@ import { fetchEventsFromRa } from "./ra-api"
 import { cache } from "react"
 
 // async function fetchVenues() {
-const fetchVenues = cache(async () => {
-  const eventResponse = await fetchEventsFromRa()
+const fetchVenues = cache(async (date: Date, city: string) => {
+  const eventResponse = await fetchEventsFromRa(date, city)
 
   const listings = eventResponse.data.eventListings.data
 
@@ -51,8 +51,9 @@ export { fetchVenues }
 async function geocodeEvents(venue: RaVenue[]): Promise<GeocodedVenue[]> {
   // const result = await client.forwardGeocode({ query: "" }).send();.
   const query = venue.map((v) => ({
-    types: ["address"],
-    q: v.address,
+    types: ["address", "street"],
+    q: `${v.name}, ${v.address}`,
+    // q: v.address,
     limit: 1,
   }))
 
@@ -70,24 +71,23 @@ async function geocodeEvents(venue: RaVenue[]): Promise<GeocodedVenue[]> {
   const data = (await response.json()) as GeocodeResponse
 
   return venue.map((v, i) => {
-    const feature = data.batch[i]?.features[0]
+    const result = data.batch[i]
+
+    if (!result) return v
+
+    const feature = result.features[0]
+    const context = feature?.properties.context
+
+    // if (v.name === "HERE") {
+    //   console.log("here", data.batch[i])
+    // }
+
     const coordinates = feature?.geometry.coordinates
-    const inLondon = coordinates && isWithinBoundingBox(coordinates)
 
     return {
       ...v,
       coordinates,
-      inLondon,
+      mapboxContext: context,
     }
   })
-}
-const LONDON_BOUNDING_BOX: [[number, number], [number, number]] = [
-  [-0.730951, 51.167276],
-  [0.395573, 51.829608],
-]
-const isWithinBoundingBox = (coordinates: [number, number]) => {
-  const [lng, lat] = coordinates
-  const [min, max] = LONDON_BOUNDING_BOX
-
-  return lng > min[0] && lng < max[0] && lat > min[1] && lat < max[1]
 }
