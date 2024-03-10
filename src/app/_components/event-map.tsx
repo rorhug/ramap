@@ -1,19 +1,19 @@
 "use client"
 
 import * as React from "react"
-import Map, { Marker, Popup } from "react-map-gl"
+import Map, { Marker } from "react-map-gl"
 import { env } from "~/env"
 
 import "mapbox-gl/dist/mapbox-gl.css"
+import { useEffect, useMemo, useState } from "react"
+import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs"
 import { type GeocodedVenue } from "../types"
 import { VenueDrawer } from "./event-drawer"
-import { useEffect, useMemo, useState } from "react"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "~/components/ui/tabs"
-import { useTheme } from "next-themes"
 
 import dayjs from "dayjs"
-import { useSearchParams } from "next/navigation"
 import Link from "next/link"
+import { useSearchParams } from "next/navigation"
+import { Button } from "~/components/ui/button"
 
 // 51.829608, -0.730951
 
@@ -95,8 +95,22 @@ export default function VenueMap({
   return (
     <main className=" min-h-screen  bg-gradient-to-b from-[#221237] to-[#0a0015] text-white">
       <div className="fixed top-0 z-50 flex w-full flex-col bg-zinc-500 bg-opacity-30 p-2">
-        <div>
-          <h1 className="mb-3 text-2xl font-bold">RA Map: London</h1>
+        <div className="flex flex-row">
+          <h1 className="mb-3 flex-1 text-xl font-bold">
+            RA Map: {city.toUpperCase()}
+          </h1>
+          <a
+            href="https://whatsapp.com/channel/0029VaSmZqqC6Zvq8Z62LJ1K"
+            target="_blank"
+          >
+            <Button
+              variant="secondary"
+              size="sm"
+              className="bg-green-600 text-white"
+            >
+              WhatsApp 💬
+            </Button>
+          </a>
           {/* <p className="text-sm">Events happening in London</p> */}
         </div>
         <div className="flex items-center">
