@@ -5,6 +5,8 @@ import { Inter } from "next/font/google"
 import { TRPCReactProvider } from "~/trpc/react"
 import NextTopLoader from "nextjs-toploader"
 
+import { Analytics } from "@vercel/analytics/react"
+
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
@@ -28,6 +30,8 @@ export default function RootLayout({
         {/* <ThemeProvider> */}
         <TRPCReactProvider>{children}</TRPCReactProvider>
         {/* </ThemeProvider> */}
+
+        <Analytics />
       </body>
     </html>
   )
