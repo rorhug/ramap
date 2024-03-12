@@ -4,9 +4,8 @@
 
 // import { getServerAuthSession } from "~/server/auth"
 // import { api } from "~/trpc/server"
-import { useSearchParams } from "next/navigation"
 import VenueMap from "./_components/event-map"
-import { fetchVenues } from "./mapbox"
+import { fetchVenues } from "../lib/mapbox"
 
 export const revalidate = 3600
 

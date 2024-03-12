@@ -16,7 +16,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "~/components/ui/carousel"
-import { type GeocodedVenue, type RaEvent } from "../types"
+import { type GeocodedVenue, type RaEvent } from "../../lib/types"
 import { useEffect, useState } from "react"
 import Image from "next/image"
 

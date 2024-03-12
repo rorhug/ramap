@@ -7,7 +7,7 @@ import { env } from "~/env"
 import "mapbox-gl/dist/mapbox-gl.css"
 import { useEffect, useMemo, useState } from "react"
 import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs"
-import { type GeocodedVenue } from "../types"
+import { type GeocodedVenue } from "../../lib/types"
 import { VenueDrawer } from "./event-drawer"
 
 import dayjs from "dayjs"
@@ -99,18 +99,6 @@ export default function VenueMap({
           <h1 className="mb-3 flex-1 text-xl font-bold">
             RA Map: {city.toUpperCase()}
           </h1>
-          <a
-            href="https://whatsapp.com/channel/0029VaSmZqqC6Zvq8Z62LJ1K"
-            target="_blank"
-          >
-            <Button
-              variant="secondary"
-              size="sm"
-              className="bg-green-600 text-white"
-            >
-              WhatsApp 💬
-            </Button>
-          </a>
           {/* <p className="text-sm">Events happening in London</p> */}
         </div>
         <div className="flex items-center">
@@ -232,6 +220,21 @@ export default function VenueMap({
           )
         })}
       </Map>
+
+      <div className="fixed bottom-0 flex w-full justify-center">
+        <a
+          href="https://whatsapp.com/channel/0029VaSmZqqC6Zvq8Z62LJ1K"
+          target="_blank"
+          className="flex"
+        >
+          <Button
+            variant="secondary"
+            className="rounded-b-none bg-green-600 text-white"
+          >
+            💬 WhatsApp
+          </Button>
+        </a>
+      </div>
 
       <VenueDrawer
         venue={selectedVenue}
