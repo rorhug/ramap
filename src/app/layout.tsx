@@ -13,7 +13,7 @@ const inter = Inter({
 })
 
 export const metadata = {
-  title: "RA Map",
+  title: "MusicMap.app",
   description: "Find raves near you :)",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 }

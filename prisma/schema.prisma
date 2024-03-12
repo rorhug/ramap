@@ -76,5 +76,9 @@ model Cache {
     id        String   @id @default(cuid())
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
-    data      String
+
+    key  String
+    data Json
+
+    @@unique([key])
 }

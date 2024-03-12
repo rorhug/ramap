@@ -34,16 +34,12 @@ const viewStates = {
 
 export default function VenueMap({
   venues,
-  // setSelectedVenueId,
-  // selectedVenueId,
   startDate: date,
   city,
 }: {
   venues: GeocodedVenue[]
   startDate: Date
   city: string
-  // setSelectedVenueId: (id: number) => void
-  // selectedVenueId: number | null
 }) {
   const [viewState, setViewState] = React.useState(
     viewStates[city as "london" | "barcelona"],
@@ -57,26 +53,7 @@ export default function VenueMap({
     return venues.find((venue) => venue.id === selectedVenueId) ?? null
   }, [selectedVenueId, venues])
 
-  // const { theme } = useTheme()
-  // const mapStyle =
-  //   theme === "dark"
-  //     ? "mapbox://styles/mapbox/dark-v11"
-  //     : "mapbox://styles/mapbox/light-v11"
   const mapStyle = "mapbox://styles/mapbox/dark-v11"
-
-  // console.log("yo frontend", venues)
-
-  const dayMap = {
-    yesterday: dayjs().subtract(1, "day"),
-    today: dayjs(),
-    tomorrow: dayjs().add(1, "day"),
-  }
-
-  // const reverseMap = {
-  //   [dayMap.yesterday.format("DD")]: "yesterday",
-  //   [dayMap.today.format("DD")]: "today",
-  //   [dayMap.tomorrow.format("DD")]: "tomorrow",
-  // }
 
   const daysArray = Array.from({ length: 9 }, (_, i) => i - 1)
   const days = daysArray.map((i) => dayjs().add(i, "day"))
@@ -92,7 +69,7 @@ export default function VenueMap({
       <div className="fixed top-0 z-50 flex w-full flex-col bg-zinc-500 bg-opacity-30 p-2">
         <div className="flex flex-row">
           <h1 className="mb-3 flex-1 text-xl font-bold">
-            RA Map: {city.toUpperCase()}
+            MusicMap: {city.toUpperCase()} - {dayjs(date).format("ddd DD MMMM")}
           </h1>
         </div>
         <div className="-mx-2 flex items-center overflow-x-scroll px-2">
@@ -150,7 +127,6 @@ export default function VenueMap({
 
       <Map
         mapLib={import("mapbox-gl")}
-        // initialViewState={initialViewState}
         {...viewState}
         onMove={(evt) => setViewState(evt.viewState)}
         style={{ width: "100vw", height: "100vh" }}
