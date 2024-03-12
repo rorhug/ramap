@@ -72,23 +72,18 @@ export default function VenueMap({
     tomorrow: dayjs().add(1, "day"),
   }
 
-  const reverseMap = {
-    [dayMap.yesterday.format("DD")]: "yesterday",
-    [dayMap.today.format("DD")]: "today",
-    [dayMap.tomorrow.format("DD")]: "tomorrow",
-  }
+  // const reverseMap = {
+  //   [dayMap.yesterday.format("DD")]: "yesterday",
+  //   [dayMap.today.format("DD")]: "today",
+  //   [dayMap.tomorrow.format("DD")]: "tomorrow",
+  // }
 
-  // today.isSame(date, "day")
-  const tabValue = reverseMap[dayjs(date).format("DD")]
+  const daysArray = Array.from({ length: 9 }, (_, i) => i - 1)
+  const days = daysArray.map((i) => dayjs().add(i, "day"))
 
   console.log(date, city)
 
-  // longitude: -0.09,
-  // latitude: 51.5,
-
   useEffect(() => {
-    // move the map
-    // console.log("yo", initialViewState)
     setViewState(viewStates[params.city as "london" | "barcelona"])
   }, [params.city])
 
@@ -99,64 +94,36 @@ export default function VenueMap({
           <h1 className="mb-3 flex-1 text-xl font-bold">
             RA Map: {city.toUpperCase()}
           </h1>
-          {/* <p className="text-sm">Events happening in London</p> */}
         </div>
-        <div className="flex items-center">
-          <span>Start date:</span>
-          <Tabs value={tabValue} className="ml-2" onChange={console.log}>
+        <div className="-mx-2 flex items-center overflow-x-scroll px-2">
+          <Tabs value={dayjs(date).format("YYYY-MM-DD")}>
             <TabsList className="">
-              <Link
-                href={{
-                  pathname: "/",
-                  query: {
-                    ...params,
-                    startDate: dayMap.yesterday.format("YYYY-MM-DD"),
-                  },
-                }}
-              >
-                <TabsTrigger value="yesterday">
-                  Yesterday {dayMap.yesterday.format("DD")}
-                </TabsTrigger>
-              </Link>
-              <Link
-                href={{
-                  pathname: "/",
-                  query: {
-                    ...params,
-                    startDate: dayMap.today.format("YYYY-MM-DD"),
-                  },
-                }}
-              >
-                <TabsTrigger value="today">
-                  Today {dayMap.today.format("DD")}
-                </TabsTrigger>
-              </Link>
-              <Link
-                href={{
-                  pathname: "/",
-                  query: {
-                    ...params,
-                    startDate: dayMap.tomorrow.format("YYYY-MM-DD"),
-                  },
-                }}
-              >
-                <TabsTrigger value="tomorrow">
-                  Tomorrow {dayMap.tomorrow.format("DD")}
-                </TabsTrigger>
-              </Link>
-              {/* <TabsTrigger value="select">Select a date</TabsTrigger> */}
+              {days.map((day) => {
+                const str = day.format("YYYY-MM-DD")
+
+                return (
+                  <Link
+                    key={str}
+                    href={{
+                      pathname: "/",
+                      query: {
+                        ...params,
+                        startDate: str,
+                      },
+                    }}
+                  >
+                    <TabsTrigger value={str}>
+                      {day.format("ddd DD")}
+                    </TabsTrigger>
+                  </Link>
+                )
+              })}
             </TabsList>
-            {/*
-          <TabsContent value="account">
-          </TabsContent>
-          <TabsContent value="password">Change your password here.</TabsContent>
-        */}
           </Tabs>
         </div>
 
         <div className="mt-2 flex items-center">
-          <span>City:</span>
-          <Tabs value={city} className="ml-2" onChange={console.log}>
+          <Tabs value={city} onChange={console.log}>
             <TabsList className="">
               <Link
                 href={{
@@ -174,13 +141,7 @@ export default function VenueMap({
               >
                 <TabsTrigger value="london">London</TabsTrigger>
               </Link>
-              {/* <TabsTrigger value="select">Select a date</TabsTrigger> */}
             </TabsList>
-            {/*
-          <TabsContent value="account">
-          </TabsContent>
-          <TabsContent value="password">Change your password here.</TabsContent>
-        */}
           </Tabs>
         </div>
       </div>
