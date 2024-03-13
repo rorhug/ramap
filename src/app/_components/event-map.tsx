@@ -107,6 +107,14 @@ export default function VenueMap({
             </TabsList>
           </Tabs>
         </div>
+        {venues.length === 0 && (
+          <>
+            <h2 className="py-3 text-2xl font-semibold">No events found.</h2>
+            <h2 className=" italic opacity-70">
+              Try a different location or date.
+            </h2>
+          </>
+        )}
 
         {/* <div className="mt-2 flex items-center">
           <Tabs value={city} onChange={console.log}>

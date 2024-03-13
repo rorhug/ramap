@@ -8,6 +8,7 @@ import {
   PersonIcon,
   RocketIcon,
   CaretRightIcon,
+  CaretDownIcon,
 } from "@radix-ui/react-icons"
 
 import {
@@ -25,6 +26,7 @@ import { AreaObject, CountryObject } from "~/lib/types"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "~/components/ui/button"
 import { cn } from "~/lib/utils"
+import NProgress from "nprogress"
 
 export const revalidate = 86400
 
@@ -68,15 +70,27 @@ export function LocationSearch({ area }: { area: AreaObject }) {
     }
   }, [open, countries])
 
+  const goToArea = (area: AreaObject) => () => {
+    // console.log(country)
+    // params.set("area", country.areas[0]?.id)
+    // const id = country.areas[0]?.id
+    // params.
+    if (typeof area.id === "string") {
+      NProgress.start()
+      router.push(`/?${createQueryString("area", area.id)}`)
+      setOpen(false)
+    }
+  }
+
   return (
     <>
       <Button
-        className="w-[200px] justify-between"
+        className="justify-between"
         variant="secondary"
         onClick={() => setOpen(true)}
       >
         {area.name} - {area.country.name}
-        <CaretRightIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        <CaretDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
       </Button>
 
       <CommandDialog open={open} onOpenChange={setOpen}>
@@ -93,17 +107,7 @@ export function LocationSearch({ area }: { area: AreaObject }) {
                   key={area.id}
                   keywords={[country.name]}
                   className="ml-2"
-                  // value={country.id}
-                  onSelect={(value) => {
-                    // console.log(country)
-                    // params.set("area", country.areas[0]?.id)
-                    // const id = country.areas[0]?.id
-                    // params.
-                    if (typeof area.id === "string") {
-                      router.push(`/?${createQueryString("area", area.id)}`)
-                      setOpen(false)
-                    }
-                  }}
+                  onSelect={goToArea(area)}
                 >
                   <span className={cn(area.isCountry && "font-semibold")}>
                     {area.isCountry ? area.country.name : area.name}
@@ -118,17 +122,7 @@ export function LocationSearch({ area }: { area: AreaObject }) {
                     <CommandItem
                       key={area.id}
                       keywords={[country.name]}
-                      // value={country.id}
-                      onSelect={(value) => {
-                        // console.log(country)
-                        // params.set("area", country.areas[0]?.id)
-                        // const id = country.areas[0]?.id
-                        // params.
-                        if (typeof area.id === "string") {
-                          router.push(`/?${createQueryString("area", area.id)}`)
-                          setOpen(false)
-                        }
-                      }}
+                      onSelect={goToArea(area)}
                     >
                       <span
                         className={cn(
