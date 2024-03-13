@@ -70,8 +70,8 @@ export function LocationSearch({ area }: { area: AreaObject }) {
     }
   }, [open, countries])
 
-  const goToArea = (area: AreaObject) => () => {
-    // console.log(country)
+  const goToArea = (area: AreaObject) => (e) => {
+    console.log(e)
     // params.set("area", country.areas[0]?.id)
     // const id = country.areas[0]?.id
     // params.
@@ -106,7 +106,7 @@ export function LocationSearch({ area }: { area: AreaObject }) {
                 <CommandItem
                   key={area.id}
                   keywords={[country.name]}
-                  className="ml-2"
+                  className="pointer-events-auto ml-2"
                   onSelect={goToArea(area)}
                   onClick={goToArea(area)}
                 >
