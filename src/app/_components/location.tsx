@@ -108,6 +108,7 @@ export function LocationSearch({ area }: { area: AreaObject }) {
                   keywords={[country.name]}
                   className="ml-2"
                   onSelect={goToArea(area)}
+                  onClick={goToArea(area)}
                 >
                   <span className={cn(area.isCountry && "font-semibold")}>
                     {area.isCountry ? area.country.name : area.name}
@@ -123,6 +124,7 @@ export function LocationSearch({ area }: { area: AreaObject }) {
                       key={area.id}
                       keywords={[country.name]}
                       onSelect={goToArea(area)}
+                      onClick={goToArea(area)}
                     >
                       <span
                         className={cn(

@@ -16,6 +16,8 @@ import { Button } from "~/components/ui/button"
 import { type VenueData } from "~/lib/mapbox"
 import { LocationSearch } from "./location"
 
+import NProgress from "nprogress"
+
 // const viewStates = {
 //   london: {
 //     longitude: -0.09,
@@ -54,6 +56,10 @@ export default function VenueMap({
 
   const paramsO = useSearchParams()
   const params = Object.fromEntries(paramsO)
+
+  useEffect(() => {
+    NProgress.done()
+  }, [paramsO])
 
   const [selectedVenueId, setSelectedVenueId] = useState<number | null>(null)
   const selectedVenue = useMemo(() => {
