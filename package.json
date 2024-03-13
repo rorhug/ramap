@@ -28,6 +28,7 @@
     "@vercel/analytics": "^1.2.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
+    "cmdk": "^1.0.0",
     "dayjs": "^1.11.10",
     "embla-carousel-react": "^8.0.0",
     "mapbox-gl": "^3.1.2",
@@ -42,6 +43,7 @@
     "superjson": "^2.2.1",
     "tailwind-merge": "^2.2.1",
     "tailwindcss-animate": "^1.0.7",
+    "tsx": "^4.7.1",
     "vaul": "^0.9.0",
     "zod": "^3.22.4"
   },

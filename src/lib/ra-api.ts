@@ -1,7 +1,10 @@
-import { type RaEventWithVenue } from "./types"
+"use server"
 
-export async function fetchEventsFromRa(date: Date, city: string) {
-  const variables = makeVariables(date, city)
+import { cache } from "react"
+import { AreaObject, CountryObject, type RaEventWithVenue } from "./types"
+
+export async function fetchEventsFromRa(date: Date, area: number) {
+  const variables = makeVariables(date, area)
 
   const body = JSON.stringify({
     operationName: "GET_EVENT_LISTINGS",
@@ -9,14 +12,14 @@ export async function fetchEventsFromRa(date: Date, city: string) {
     query: raGql,
   })
 
-  console.log("cv", city, variables)
+  console.log("cv", area, variables)
 
-  const region = city === "barcelona" ? "es/barcelona" : `uk/london`
+  // const region = city === "barcelona" ? "es/barcelona" : `uk/london`
 
   const res = await fetch("https://ra.co/graphql", {
     headers: {
       "content-type": "application/json",
-      Referer: `https://ra.co/events/${region}`,
+      Referer: `https://ra.co/events`,
     },
     body,
     method: "POST",
@@ -26,7 +29,7 @@ export async function fetchEventsFromRa(date: Date, city: string) {
   // You can return Date, Map, Set, etc.
   if (!res.ok) {
     // This will activate the closest `error.js` Error Boundary
-    console.error("error ra", res.status, res.body)
+    console.error("error ra events", res.status, await res.text())
     throw new Error("Failed to fetch data")
   }
 
@@ -49,29 +52,13 @@ export async function fetchEventsFromRa(date: Date, city: string) {
       }
     }
   }>
-
-  // const geocoded = geocodingClient.forwardGeocode({
-  //   query: 'Paris, France',
-  //   limit: 2
-  // })
-  //   .send()
-  //   .then(response => {
-  //     const match = response.body;
-  //   });
 }
-const makeVariables = (date: Date, city: string) => {
-  // const thisSunday =
-  //   new Date().getDay() === 0
-  //     ? new Date()
-  //     : new Date(
-  //         new Date().setDate(new Date().getDate() + 7 - new Date().getDay()),
-  //       )
-  // const sixHoursAgo = new Date(new Date().setHours(new Date().getHours() - 24))
 
+const makeVariables = (date: Date, area: number) => {
   return {
     filters: {
       areas: {
-        eq: city === "barcelona" ? 20 : 13,
+        eq: area,
       },
       listingDate: {
         gte: date.toISOString().split("T")[0],
@@ -160,4 +147,125 @@ fragment eventListingsFields on Event {
   }
   __typename
 }
+`
+
+export const fetchRaLocations = cache(async () => {
+  const body = JSON.stringify({
+    operationName: "GET_ALL_LOCATIONS_QUERY",
+    variables: {},
+    query: locationsQuery,
+  })
+
+  const res = await fetch("https://ra.co/graphql", {
+    headers: {
+      "content-type": "application/json",
+      Referer: `https://ra.co/events`,
+    },
+    body,
+    method: "POST",
+  })
+
+  // The return value is *not* serialized
+  // You can return Date, Map, Set, etc.
+  if (!res.ok) {
+    // This will activate the closest `error.js` Error Boundary
+    console.error("error ra locs", res.status, await res.text())
+    throw new Error("Failed to fetch data")
+  }
+
+  return res.json() as Promise<{ data: { countries: CountryObject[] } }>
+})
+
+const locationsQuery = `
+query GET_ALL_LOCATIONS_QUERY {
+  countries {
+    id
+    name
+    urlCode
+    topCountry
+    order
+    areas {
+      id
+      name
+      isCountry
+      urlName
+      parentId
+      subregion {
+        id
+        name
+        urlName
+        country {
+          id
+          name
+          urlCode
+          __typename
+        }
+        __typename
+      }
+      country {
+        id
+        name
+        urlCode
+        __typename
+      }
+      __typename
+    }
+    __typename
+  }
+}
+`
+
+export const fetchArea = cache(async (area: number) => {
+  const body = JSON.stringify({
+    operationName: "GET_EVENTS_AREA",
+    variables: { id: area },
+    query: areaQuery,
+  })
+
+  const res = await fetch("https://ra.co/graphql", {
+    headers: {
+      "content-type": "application/json",
+      Referer: `https://ra.co/events`,
+    },
+    body,
+    method: "POST",
+  })
+
+  // The return value is *not* serialized
+  // You can return Date, Map, Set, etc.
+  if (!res.ok) {
+    // This will activate the closest `error.js` Error Boundary
+    const text = await res.text()
+    console.error("error ra area", res.status, text)
+
+    throw new Error("Failed to fetch data")
+  }
+
+  return res.json() as Promise<{ data: { eventsArea: AreaObject } }>
+})
+
+const areaQuery = `
+query GET_EVENTS_AREA($id: ID) {
+  eventsArea: area(id: $id) {
+    ...areaFields
+    __typename
+  }
+}
+
+fragment areaFields on Area {
+  id
+  name
+  urlName
+  ianaTimeZone
+  blurb
+  country {
+    id
+    name
+    urlCode
+    requiresCookieConsent
+    __typename
+  }
+  __typename
+}
+
 `

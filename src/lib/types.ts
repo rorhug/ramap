@@ -116,3 +116,22 @@ type MapboxContext = {
     country_code_alpha_3: string
   }
 }
+
+export type CountryObject = {
+  id: string
+  name: string
+  urlCode: string
+  topCountry: boolean
+  order: number
+  areas: AreaObject[]
+}
+
+export type AreaObject = {
+  id: string
+  name: string
+  isCountry: boolean
+  urlName: string
+  parentId: string
+  subregion: AreaObject[]
+  country: CountryObject
+}

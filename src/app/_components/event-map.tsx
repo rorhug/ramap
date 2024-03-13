@@ -7,43 +7,50 @@ import { env } from "~/env"
 import "mapbox-gl/dist/mapbox-gl.css"
 import { useEffect, useMemo, useState } from "react"
 import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs"
-import { type GeocodedVenue } from "../../lib/types"
 import { VenueDrawer } from "./event-drawer"
 
 import dayjs from "dayjs"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { Button } from "~/components/ui/button"
+import { type VenueData } from "~/lib/mapbox"
+import { LocationSearch } from "./location"
 
-// 51.829608, -0.730951
-
-// 51.167276, 0.395573
-
-const viewStates = {
-  london: {
-    longitude: -0.09,
-    latitude: 51.5,
-    zoom: 10,
-  },
-  barcelona: {
-    longitude: 2.154007,
-    latitude: 41.390205,
-    zoom: 10,
-  },
-}
+// const viewStates = {
+//   london: {
+//     longitude: -0.09,
+//     latitude: 51.5,
+//     zoom: 10,
+//   },
+//   barcelona: {
+//     longitude: 2.154007,
+//     latitude: 41.390205,
+//     zoom: 10,
+//   },
+// }
 
 export default function VenueMap({
-  venues,
+  venueData,
   startDate: date,
-  city,
 }: {
-  venues: GeocodedVenue[]
+  venueData: VenueData
   startDate: Date
-  city: string
 }) {
-  const [viewState, setViewState] = React.useState(
-    viewStates[city as "london" | "barcelona"],
-  )
+  const { venues, medianPoint, area } = venueData
+
+  const [viewState, setViewState] = React.useState({
+    zoom: 10,
+    longitude: medianPoint[0] ?? -7.6921,
+    latitude: medianPoint[1] ?? 53.1424,
+  })
+
+  useEffect(() => {
+    setViewState({
+      zoom: 10,
+      longitude: medianPoint[0],
+      latitude: medianPoint[1],
+    })
+  }, [medianPoint])
 
   const paramsO = useSearchParams()
   const params = Object.fromEntries(paramsO)
@@ -58,20 +65,22 @@ export default function VenueMap({
   const daysArray = Array.from({ length: 9 }, (_, i) => i - 1)
   const days = daysArray.map((i) => dayjs().add(i, "day"))
 
-  console.log(date, city)
-
-  useEffect(() => {
-    setViewState(viewStates[params.city as "london" | "barcelona"])
-  }, [params.city])
+  // const area = venues[0]?.address
 
   return (
     <main className=" min-h-screen  bg-gradient-to-b from-[#221237] to-[#0a0015] text-white">
       <div className="fixed top-0 z-50 flex w-full flex-col bg-zinc-500 bg-opacity-30 p-2">
-        <div className="flex flex-row">
-          <h1 className="mb-3 flex-1 text-xl font-bold">
-            MusicMap: {city.toUpperCase()} - {dayjs(date).format("ddd DD MMMM")}
+        <div className="mb-2 flex flex-row">
+          <h1 className=" flex-1 text-xl font-bold">
+            MusicMap: {area.name.toUpperCase()} -{" "}
+            {dayjs(date).format("ddd DD MMMM")}
           </h1>
         </div>
+
+        <div className="mb-2">
+          <LocationSearch area={area} />
+        </div>
+
         <div className="-mx-2 flex items-center overflow-x-scroll px-2">
           <Tabs value={dayjs(date).format("YYYY-MM-DD")}>
             <TabsList className="">
@@ -99,7 +108,7 @@ export default function VenueMap({
           </Tabs>
         </div>
 
-        <div className="mt-2 flex items-center">
+        {/* <div className="mt-2 flex items-center">
           <Tabs value={city} onChange={console.log}>
             <TabsList className="">
               <Link
@@ -120,7 +129,7 @@ export default function VenueMap({
               </Link>
             </TabsList>
           </Tabs>
-        </div>
+        </div> */}
       </div>
 
       <div></div>

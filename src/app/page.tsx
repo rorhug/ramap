@@ -5,9 +5,8 @@
 // import { getServerAuthSession } from "~/server/auth"
 // import { api } from "~/trpc/server"
 import VenueMap from "./_components/event-map"
-import { fetchVenues } from "../lib/mapbox"
+import { VenueData, fetchVenues } from "../lib/mapbox"
 import { db } from "~/server/db"
-import { GeocodedVenue } from "~/lib/types"
 import { env } from "~/env"
 
 export const revalidate = 3600
@@ -15,7 +14,7 @@ export const revalidate = 3600
 export default async function Home({
   searchParams,
 }: {
-  searchParams: { startDate?: string; city?: string }
+  searchParams: { startDate?: string; area?: string }
 }) {
   // const params = useSearchParams()
 
@@ -25,9 +24,19 @@ export default async function Home({
 
   // const startDateQuery = params.get("startDate")
   const date = startDate ? new Date(startDate) : new Date()
-  const city = (searchParams.city ?? "london").toLowerCase().trim()
+  // const city = searchParams.city ? searchParams.city.toLowerCase().trim() : null
 
-  const cacheKey = `venues-${date.toISOString().slice(0, 10)}-${city}`
+  // if (!city) {
+  //   return (
+  //     <div>
+  //       <h1>Loading...</h1>
+  //     </div>
+  //   )
+  // }
+
+  const area = parseInt(searchParams.area ?? "") || 13
+
+  const cacheKey = `venues-${date.toISOString().slice(0, 10)}-${area}`
 
   console.log({ cacheKey })
 
@@ -41,26 +50,28 @@ export default async function Home({
         })
       : null
 
-  let venues: GeocodedVenue[]
+  let venueData: VenueData
   if (venueCache) {
     console.log("cache hit")
-    venues = venueCache.data as GeocodedVenue[]
+    venueData = venueCache.data as VenueData
   } else {
-    venues = await fetchVenues(date, city)
+    const result = await fetchVenues(date, area)
 
     if (env.NODE_ENV === "development") {
       await db.cache.upsert({
         where: { key: cacheKey },
         create: {
           key: cacheKey,
-          data: venues,
+          data: result,
         },
         update: {
-          data: venues,
+          data: result,
         },
       })
     }
+
+    venueData = result
   }
 
-  return <VenueMap venues={venues} startDate={date} city={city} />
+  return <VenueMap venueData={venueData} startDate={date} />
 }

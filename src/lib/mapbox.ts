@@ -1,50 +1,68 @@
 "use server"
 
 import { env } from "~/env"
-import { type RaVenue, type GeocodedVenue, type GeocodeResponse } from "./types"
-import { fetchEventsFromRa } from "./ra-api"
+import {
+  type RaVenue,
+  type GeocodedVenue,
+  type GeocodeResponse,
+  type AreaObject,
+} from "./types"
+import { fetchArea, fetchEventsFromRa } from "./ra-api"
 
 import { cache } from "react"
 
-// async function fetchVenues() {
-const fetchVenues = cache(async (date: Date, city: string) => {
-  const eventResponse = await fetchEventsFromRa(date, city)
+export type VenueData = {
+  venues: GeocodedVenue[]
+  medianPoint: [number, number]
+  area: AreaObject
+}
 
-  const listings = eventResponse.data.eventListings.data
+const fetchVenues = cache(
+  async (date: Date, areaId: number): Promise<VenueData> => {
+    const {
+      data: { eventsArea: area },
+    } = await fetchArea(areaId)
 
-  // const e = events[0]
-  const venues = listings.reduce<RaVenue[]>((acc, listing) => {
-    const { event } = listing
-    const { venue } = event
+    const eventResponse = await fetchEventsFromRa(date, areaId)
 
-    if (!venue) {
-      return acc
-    }
+    const listings = eventResponse.data.eventListings.data
 
-    const existing = acc.find((v) => v.id === venue.id)
+    // const e = events[0]
+    const venues = listings.reduce<RaVenue[]>((acc, listing) => {
+      const { event } = listing
+      const { venue } = event
 
-    if (existing) {
-      if (!existing.events) {
-        existing.events = []
-      } else {
-        existing.events.push(event)
+      if (!venue) {
+        return acc
       }
-    } else {
-      acc.push({
-        ...venue,
-        events: [event],
-      })
-    }
 
-    return acc
-  }, [])
+      const existing = acc.find((v) => v.id === venue.id)
 
-  const geocoded = await geocodeEvents(venues)
+      if (existing) {
+        if (!existing.events) {
+          existing.events = []
+        } else {
+          existing.events.push(event)
+        }
+      } else {
+        acc.push({
+          ...venue,
+          events: [event],
+        })
+      }
 
-  console.log("geocoded", geocoded.length)
+      return acc
+    }, [])
 
-  return geocoded
-})
+    const geocoded = await geocodeEvents(venues)
+
+    const medianPoint = calculateMedianPoint(geocoded)
+
+    console.log("geocoded", geocoded.length)
+
+    return { venues: geocoded, medianPoint, area }
+  },
+)
 
 export { fetchVenues }
 
@@ -90,4 +108,22 @@ async function geocodeEvents(venue: RaVenue[]): Promise<GeocodedVenue[]> {
       mapboxContext: context,
     }
   })
+}
+
+const calculateMedianPoint = (venues: GeocodedVenue[]): [number, number] => {
+  const filteredVenues = venues.filter((v) => v.coordinates)
+
+  const lngValues = filteredVenues.map((v) => v.coordinates![0])
+  const latValues = filteredVenues.map((v) => v.coordinates![1])
+
+  const sortedLngValues = lngValues.sort((a, b) => a - b)
+  const sortedLatValues = latValues.sort((a, b) => a - b)
+
+  const medianLng = sortedLngValues[Math.floor(sortedLngValues.length / 2)]
+  const medianLat = sortedLatValues[Math.floor(sortedLatValues.length / 2)]
+
+  const medianPoint: [number, number] =
+    medianLng && medianLat ? [medianLng, medianLat] : [-7.6921, 53.1424]
+
+  return medianPoint
 }
