@@ -70,11 +70,7 @@ export function LocationSearch({ area }: { area: AreaObject }) {
     }
   }, [open, countries])
 
-  const goToArea = (area: AreaObject) => (e) => {
-    console.log(e)
-    // params.set("area", country.areas[0]?.id)
-    // const id = country.areas[0]?.id
-    // params.
+  const goToArea = (area: AreaObject) => () => {
     if (typeof area.id === "string") {
       NProgress.start()
       router.push(`/?${createQueryString("area", area.id)}`)
@@ -96,7 +92,7 @@ export function LocationSearch({ area }: { area: AreaObject }) {
       <CommandDialog open={open} onOpenChange={setOpen}>
         <CommandInput placeholder="Type a command or search..." />
         <CommandList>
-          <CommandEmpty>No results found.</CommandEmpty>
+          <CommandEmpty>Loading...</CommandEmpty>
 
           {countries?.map((country) => {
             if (country.areas.length === 0) return null
@@ -106,9 +102,10 @@ export function LocationSearch({ area }: { area: AreaObject }) {
                 <CommandItem
                   key={area.id}
                   keywords={[country.name]}
-                  className="pointer-events-auto ml-2"
+                  // className="pointer-events-auto ml-2"
                   onSelect={goToArea(area)}
                   onClick={goToArea(area)}
+                  // disabled={false}
                 >
                   <span className={cn(area.isCountry && "font-semibold")}>
                     {area.isCountry ? area.country.name : area.name}
@@ -125,6 +122,8 @@ export function LocationSearch({ area }: { area: AreaObject }) {
                       keywords={[country.name]}
                       onSelect={goToArea(area)}
                       onClick={goToArea(area)}
+                      // disabled={false}
+                      // className="pointer-events-auto"
                     >
                       <span
                         className={cn(

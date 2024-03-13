@@ -150,6 +150,8 @@ fragment eventListingsFields on Event {
 `
 
 export const fetchRaLocations = cache(async () => {
+  console.log("getting locations")
+
   const body = JSON.stringify({
     operationName: "GET_ALL_LOCATIONS_QUERY",
     variables: {},
