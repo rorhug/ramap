@@ -13,8 +13,10 @@
 
 - [] make sold out gigs red
 
-- [] store clubs geocodes in db
+- [x] store clubs geocodes in db (temp solution for dev)
 
-- collect emails - coming soon: more cities, mobile app
+- [] collect emails - coming soon: more cities, mobile app
 
-- publish
+- [x] publish
+
+- [] event permalinks (idea credit: @ncerovac)
