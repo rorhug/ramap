@@ -19,4 +19,5 @@
 
 - [x] publish
 
-- [] event permalinks (idea credit: @ncerovac)
+- [] event permalinks with share buttons (idea credit: @ncerovac)
+- [] add to calendar (idea credit: @ncerovac)
