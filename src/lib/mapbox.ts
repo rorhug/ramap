@@ -123,7 +123,9 @@ const calculateMedianPoint = (venues: GeocodedVenue[]): [number, number] => {
   const medianLat = sortedLatValues[Math.floor(sortedLatValues.length / 2)]
 
   const medianPoint: [number, number] =
-    medianLng && medianLat ? [medianLng, medianLat] : [-7.6921, 53.1424]
+    medianLng !== undefined && medianLat !== undefined
+      ? [medianLng, medianLat]
+      : [-7.6921, 53.1424]
 
   return medianPoint
 }
