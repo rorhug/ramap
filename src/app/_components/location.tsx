@@ -55,7 +55,6 @@ export function LocationSearch({ area }: { area: AreaObject }) {
         setOpen((open) => !open)
       }
     }
-
     document.addEventListener("keydown", down)
     return () => document.removeEventListener("keydown", down)
   }, [])
