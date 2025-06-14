@@ -106,7 +106,7 @@ async function geocodeEvents(venue: RaVenue[]): Promise<GeocodedVenue[]> {
     }))
 
     const response = await fetch(
-      `https://api.mapbox.com/search/geocode/v6/batch?access_token=${env.NEXT_PUBLIC_MAPBOX_TOKEN}`,
+      `https://api.mapbox.com/search/geocode/v6/batch?access_token=${env.MAPBOX_TOKEN_BACKEND}`,
       {
         method: "POST",
         headers: {
