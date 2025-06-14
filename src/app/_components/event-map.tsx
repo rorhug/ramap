@@ -61,7 +61,7 @@ export default function VenueMap({
     NProgress.done()
   }, [paramsO])
 
-  const [selectedVenueId, setSelectedVenueId] = useState<number | null>(null)
+  const [selectedVenueId, setSelectedVenueId] = useState<string | null>(null)
   const selectedVenue = useMemo(() => {
     return venues.find((venue) => venue.id === selectedVenueId) ?? null
   }, [selectedVenueId, venues])

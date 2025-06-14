@@ -6,10 +6,16 @@ import {
   type GeocodedVenue,
   type GeocodeResponse,
   type AreaObject,
+  MapboxContext,
 } from "./types"
 import { fetchArea, fetchEventsFromRa } from "./ra-api"
+import { createClient } from "../supabase/client"
+import type { Tables } from "../supabase/types"
 
 import { cache } from "react"
+import { createServerClient } from "~/supabase/server"
+
+type VenueRow = Tables<"venues">
 
 export type VenueData = {
   venues: GeocodedVenue[]
@@ -58,8 +64,6 @@ const fetchVenues = cache(
 
     const medianPoint = calculateMedianPoint(geocoded)
 
-    console.log("geocoded", geocoded.length)
-
     return { venues: geocoded, medianPoint, area }
   },
 )
@@ -67,46 +71,101 @@ const fetchVenues = cache(
 export { fetchVenues }
 
 async function geocodeEvents(venue: RaVenue[]): Promise<GeocodedVenue[]> {
-  // const result = await client.forwardGeocode({ query: "" }).send();.
-  const query = venue.map((v) => ({
-    types: ["address", "street"],
-    q: `${v.name}, ${v.address}`,
-    // q: v.address,
-    limit: 1,
-  }))
+  const supabase = createServerClient()
+  const venueIds = venue.map((v) => v.id)
 
-  const response = await fetch(
-    `https://api.mapbox.com/search/geocode/v6/batch?access_token=${env.NEXT_PUBLIC_MAPBOX_TOKEN}`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(query),
-    },
+  // 1. Get all venue IDs from Supabase that match the input
+  const { data: existingVenues, error } = await supabase
+    .from("venues")
+    .select("id, long, lat, mapbox_context, address, area_id, live, name")
+    .in("id", venueIds)
+
+  if (error) throw error
+
+  const existingVenueMap = new Map<string, VenueRow>()
+  if (existingVenues) {
+    for (const v of existingVenues as VenueRow[]) {
+      existingVenueMap.set(v.id, v)
+    }
+  }
+
+  // 2. Find which venues are missing
+  const missingVenues = venue.filter(
+    (v) => !existingVenueMap.has(v.id) && v.address,
   )
 
-  const data = (await response.json()) as GeocodeResponse
+  let geocoded: GeocodedVenue[] = []
+  if (missingVenues.length > 0) {
+    console.log("geocoding", missingVenues.length)
 
-  return venue.map((v, i) => {
-    const result = data.batch[i]
+    // 3. Only geocode missing venues
+    const query = missingVenues.map((v) => ({
+      types: ["address", "street"],
+      q: `${v.name}, ${v.address}`,
+      limit: 1,
+    }))
 
-    if (!result) return v
+    const response = await fetch(
+      `https://api.mapbox.com/search/geocode/v6/batch?access_token=${env.NEXT_PUBLIC_MAPBOX_TOKEN}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(query),
+      },
+    )
 
-    const feature = result.features[0]
-    const context = feature?.properties.context
+    const data = (await response.json()) as GeocodeResponse
 
-    // if (v.name === "HERE") {
-    //   console.log("here", data.batch[i])
-    // }
+    geocoded = missingVenues.map((v, i) => {
+      const result = data.batch[i]
+      if (!result) return v
+      const feature = result.features[0]
+      const context = feature?.properties.context
+      const coordinates = feature?.geometry.coordinates
+      return {
+        ...v,
+        coordinates,
+        mapbox_context: context,
+      }
+    })
 
-    const coordinates = feature?.geometry.coordinates
-
-    return {
-      ...v,
-      coordinates,
-      mapboxContext: context,
+    // 4. Insert new venues into Supabase
+    if (geocoded.length > 0) {
+      const { error } = await supabase.from("venues").insert(
+        geocoded.map((v) => ({
+          id: v.id,
+          name: v.name,
+          live: v.live,
+          address: v.address,
+          long: v.coordinates?.[0] ?? null,
+          lat: v.coordinates?.[1] ?? null,
+          mapbox_context: v.mapbox_context ?? null,
+        })),
+      )
+      if (error) {
+        console.error("error inserting venues", error)
+      }
     }
+  }
+
+  // 5. Return all venues, combining existing and new, with coordinates and mapboxContext if available
+  return venue.map((v) => {
+    const existing = existingVenueMap.get(v.id)
+    if (existing) {
+      return {
+        ...v,
+        id: v.id,
+        coordinates:
+          typeof existing.long === "number" && typeof existing.lat === "number"
+            ? [existing.long, existing.lat]
+            : undefined,
+        mapbox_context: existing.mapbox_context as MapboxContext,
+      }
+    }
+    const geocodedVenue = geocoded.find((g) => g.id === v.id)
+    return geocodedVenue ?? v
   })
 }
 

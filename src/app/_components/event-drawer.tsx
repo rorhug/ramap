@@ -25,7 +25,7 @@ export function VenueDrawer({
   setSelectedVenueId,
 }: {
   venue: GeocodedVenue | null
-  setSelectedVenueId: (id: number | null) => void
+  setSelectedVenueId: (id: string | null) => void
 }) {
   const [open, setOpen] = useState(false)
   //

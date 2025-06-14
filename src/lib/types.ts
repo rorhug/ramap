@@ -1,5 +1,5 @@
 export type RaEvent = {
-  id: number
+  id: string
   date: string
   startTime: string
   endTime: string
@@ -11,14 +11,14 @@ export type RaEvent = {
   queueItEnabled: boolean
   newEventForm: boolean
   images: {
-    id: number
+    id: string
     filename: string
     alt: string
     type: string
     crop: string
   }[]
   pick: {
-    id: number
+    id: string
     blurb: string
   }
 }
@@ -26,16 +26,16 @@ export type RaEventWithVenue = RaEvent & {
   venue: RaVenue
 }
 export type RaVenue = {
-  id: number
+  id: string
   name: string
   contentUrl: string
   live: boolean
-  address: string
+  address: string | null
   events?: RaEvent[]
 }
 export type GeocodedVenue = RaVenue & {
   coordinates?: [number, number]
-  mapboxContext?: MapboxContext
+  mapbox_context?: MapboxContext
 }
 export type GeocodeResponse = {
   batch: {
@@ -73,7 +73,7 @@ export type GeocodeResponse = {
   }[]
 }
 
-type MapboxContext = {
+export type MapboxContext = {
   address: {
     mapbox_id: string
     address_number: string
