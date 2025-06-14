@@ -32,6 +32,14 @@ const config = {
       },
     ],
   },
-};
+  overrides: [
+    {
+      files: ["src/supabase/types.ts"], // Adjust this path to where your Supabase schema file is generated
+      rules: {
+        "@typescript-eslint/no-redundant-type-constituents": "off",
+      },
+    },
+  ],
+}
 
-module.exports = config;
+module.exports = config
