@@ -99,23 +99,52 @@ export function LocationSearch({ area }: { area: AreaObject }) {
             if (country.areas.length === 1) {
               const area = country.areas[0]!
               return (
-                <CommandItem
-                  key={area.id}
-                  keywords={[country.name]}
-                  // className="pointer-events-auto ml-2"
+                <CommandGroup
+                  heading={
+                    area.isCountry
+                      ? country.name
+                      : `${area.name} - ${country.name}`
+                  }
+                  key={`c-${country.id}`}
                   onSelect={goToArea(area)}
                   onClick={goToArea(area)}
-                  // disabled={false}
-                >
-                  <span className={cn(area.isCountry && "font-semibold")}>
-                    {area.isCountry ? area.country.name : area.name}
-                  </span>
-                </CommandItem>
+                  // keywords={[country.name]}
+                ></CommandGroup>
+                // <CommandItem
+                //   key={area.id}
+                //   keywords={[country.name]}
+                //   // className="pointer-events-auto ml-2"
+                //   onSelect={goToArea(area)}
+                //   onClick={goToArea(area)}
+                //   // disabled={false}
+                // >
+                //   <span className={cn(area.isCountry && "font-semibold")}>
+                //     {area.isCountry
+                //       ? area.country.name
+                //       : `${area.name} - ${area.country.name}`}
+                //   </span>
+                // </CommandItem>
               )
             }
+
+            const firstArea = country.areas[0]!
+            const firstAreaIsCountry = firstArea.isCountry
+            const goToCountry = firstAreaIsCountry
+              ? goToArea(firstArea)
+              : undefined
+
             return (
-              <CommandGroup heading={country.name} key={`c-${country.id}`}>
+              <CommandGroup
+                heading={country.name + (firstAreaIsCountry ? " - All" : "")}
+                key={`c-${country.id}`}
+                onSelect={goToCountry}
+                onClick={goToCountry}
+                className={
+                  goToCountry ? "" : "[&_[cmdk-group-heading]]:opacity-50"
+                }
+              >
                 {country.areas.map((area) => {
+                  if (area.isCountry) return null
                   return (
                     <CommandItem
                       key={area.id}
@@ -127,8 +156,7 @@ export function LocationSearch({ area }: { area: AreaObject }) {
                     >
                       <span
                         className={cn(
-                          area.isCountry && "font-semibold",
-                          "ml-2",
+                          area.isCountry ? "-ml-2 font-semibold" : "ml-8",
                         )}
                       >
                         {area.isCountry

@@ -2,6 +2,7 @@
 
 import { cache } from "react"
 import { AreaObject, CountryObject, type RaEventWithVenue } from "./types"
+import { headers } from "next/headers"
 
 export async function fetchEventsFromRa(date: Date, area: number) {
   const variables = makeVariables(date, area)
@@ -175,7 +176,32 @@ export const fetchRaLocations = cache(async () => {
     throw new Error("Failed to fetch data")
   }
 
-  return res.json() as Promise<{ data: { countries: CountryObject[] } }>
+  // get vercel country
+  const country = headers().get("x-vercel-ip-country")
+  console.log("country", country)
+
+  const resJson = (await res.json()) as {
+    data: { countries: CountryObject[] }
+  }
+
+  let finalCountries = resJson.data.countries
+  if (country) {
+    const currentCountry = resJson.data.countries.find(
+      (c) => c.urlCode === country,
+    )
+
+    if (currentCountry) {
+      finalCountries = [currentCountry].concat(
+        resJson.data.countries.filter((c) => c.urlCode !== country),
+      )
+    }
+  }
+
+  return {
+    data: {
+      countries: finalCountries,
+    },
+  }
 })
 
 const locationsQuery = `
